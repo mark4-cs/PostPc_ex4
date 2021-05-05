@@ -1,5 +1,6 @@
 package exercise.find.roots;
 
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -47,6 +48,8 @@ public class MainActivityTest extends TestCase {
 
     // test: insert input to the edit text and verify that the button is enabled
     // TODO: implement
+    inputEditText.setText("6");
+    assertTrue(button.isEnabled());
   }
 
   // TODO: add 1 or 2 more unit tests to the activity. so your "writing tests" skill won't get rusty.
@@ -60,6 +63,30 @@ public class MainActivityTest extends TestCase {
   //  - when starting a calculation and than activity receives "stopped_calculations" broadcast, the button should be unlocked (enabled)
   //  - when starting a calculation and than activity receives "stopped_calculations" broadcast, "progress" should disappear
   //
+  @Test
+  public void when_activity_launches_progress_starts_hidden(){
+    // create a MainActivity and let it think it's currently displayed on the screen
+    MainActivity mainActivity = Robolectric.buildActivity(MainActivity.class).create().visible().get();
+
+    // test: make sure that the "calculate" button is disabled
+    View progressBar = mainActivity.findViewById(R.id.progressBar);
+    assertEquals(progressBar.getVisibility(), View.GONE);
+  }
+
+  @Test
+  public void when_inserting_a_good_number_and_clicking_the_button_progress_should_be_displayed(){
+    // create a MainActivity and let it think it's currently displayed on the screen
+    MainActivity mainActivity = Robolectric.buildActivity(MainActivity.class).create().visible().get();
+
+    // find the edit-text and the button
+    EditText inputEditText = mainActivity.findViewById(R.id.editTextInputNumber);
+    Button button = mainActivity.findViewById(R.id.buttonCalculateRoots);
+    View progressBar = mainActivity.findViewById(R.id.progressBar);
+
+    inputEditText.setText("6");
+    button.performClick();
+    assertEquals(progressBar.getVisibility(), View.VISIBLE);
+  }
   // to mock a click on the button:
   //    call `button.performClick()`
   //

@@ -7,19 +7,19 @@ import android.util.Log;
 public class CalculateRootsService extends IntentService {
 
 
-  public CalculateRootsService() {
-    super("CalculateRootsService");
-  }
-
-  @Override
-  protected void onHandleIntent(Intent intent) {
-    if (intent == null) return;
-    long timeStartMs = System.currentTimeMillis();
-    long numberToCalculateRootsFor = intent.getLongExtra("number_for_service", 0);
-    if (numberToCalculateRootsFor <= 0) {
-      Log.e("CalculateRootsService", "can't calculate roots for non-positive input" + numberToCalculateRootsFor);
-      return;
+    public CalculateRootsService() {
+        super("CalculateRootsService");
     }
+
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        if (intent == null) return;
+        long timeStartMs = System.currentTimeMillis();
+        long numberToCalculateRootsFor = intent.getLongExtra("number_for_service", 0);
+        if (numberToCalculateRootsFor <= 0) {
+            Log.e("CalculateRootsService", "can't calculate roots for non-positive input" + numberToCalculateRootsFor);
+            return;
+        }
     /*
     TODO:
      calculate the roots.
@@ -41,5 +41,32 @@ public class CalculateRootsService extends IntentService {
        for input "829851628752296034247307144300617649465159", after 20 seconds give up
 
      */
-  }
+
+        // O(sqrt(n)) solution
+        long root1 = numberToCalculateRootsFor;
+        long root2 = 1;
+
+        for (long i = 2; i <= Math.sqrt(numberToCalculateRootsFor); i++) {
+            if ((System.currentTimeMillis() - timeStartMs) >= 20000) {
+                Intent bcIntent = new Intent("stopped_calculations");
+                bcIntent.putExtra("original_number", numberToCalculateRootsFor);
+                bcIntent.putExtra("time_until_give_up_seconds", (System.currentTimeMillis() / 1000L - timeStartMs / 1000L));
+                sendBroadcast(bcIntent);
+                return;
+            }
+            if (numberToCalculateRootsFor % i == 0) {
+                root1 = i;
+                root2 = numberToCalculateRootsFor / i;
+                break;
+            }
+        }
+
+        Intent bcIntent = new Intent("found_roots");
+        bcIntent.putExtra("original_number", numberToCalculateRootsFor);
+        bcIntent.putExtra("root1", root1);
+        bcIntent.putExtra("root2", root2);
+        bcIntent.putExtra("time", (System.currentTimeMillis() / 1000L - timeStartMs / 1000L));
+        sendBroadcast(bcIntent);
+
+    }
 }
